@@ -5,6 +5,7 @@ from typing import Union
 import faiss
 import numpy as np
 import joblib
+from sklearn.preprocessing import StandardScaler
 
 from scipy.spatial import distance as dist
 
@@ -69,6 +70,9 @@ def make_concatenated_with_distances(candidates, query, base):
         concatenated_vecs.append(concatenated_vec)
     return np.array(concatenated_vecs)
 
+def most_similar_5(arr):
+    return arr[:,0].argsort()[:5]
+
 
 @app.on_event("startup")
 def start():
@@ -104,7 +108,7 @@ def match(item: Union[str, None] = None) -> dict:
     global base_array
     
     if item is None:
-        return {"status": "fail", "message": "No input data"}
+        return {"status": "fail", "message": "Не введены данные"}
 
     vec = parse_string(item)
     vec = scaler.transform(vec)
@@ -113,8 +117,9 @@ def match(item: Union[str, None] = None) -> dict:
     
     query = vec
     query_features = make_concatenated_with_distances([idxs], query, base_array)
+    top_5_candidates = candidates[most_similar_5(model.predict_proba(query_features))]
 
-    return {"status": "OK", "data": [str(el) for el in idx]}
+    return {"status": "OK", "Индексы векторов из базы": top_5_candidates}
 
 
 if __name__ == "__main__":
