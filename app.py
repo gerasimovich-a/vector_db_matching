@@ -113,7 +113,7 @@ def match(item: Union[str, None] = None) -> dict:
     vec = parse_string(item)
     vec = scaler.transform(vec)
     vec = np.ascontiguousarray(vec, dtype="float")[np.newaxis, :]
-    _, idxs = faiss_index.search(vec, k=100)
+    _, idxs = faiss_index.search(vec, k=50)
     
     query = vec
     query_features = make_concatenated_with_distances([idxs], query, base_array)
